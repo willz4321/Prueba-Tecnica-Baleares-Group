@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+@{
+    Layout = null;  
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+<form asp-controller="AuthView" asp-action="Login" method="post" enctype="multipart/form-data"
+  class="mx-auto my-5 p-4 shadow-lg rounded" style="max-width: 400px;">
+    <h2 class="text-center mb-4">Iniciar sesión</h2>
+
+    <div class="form-group mb-3">
+        <label for="Correo" class="form-label">Correo electrónico</label>
+        <input type="email" class="form-control" id="Correo" name="Correo" required>
+    </div>
+
+    <div class="form-group mb-4">
+        <label for="Password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" id="Password" name="Password" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        <a asp-controller="AuthView" asp-action="CreateUser">Registrarse</a>
+
+    @if (ViewData["Error"] != null)
+    {
+        <section class="alert alert-danger" role="alert">
+            @ViewData["Error"]
+        </section>
+    }
+</form>
+</body>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</html>

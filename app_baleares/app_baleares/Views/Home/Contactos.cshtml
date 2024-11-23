@@ -1,0 +1,167 @@
+﻿@model app_baleares.Views.ViewModels.ViewModelsContacts;
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@{
+    var provincias = new[]
+    {
+        "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba",
+        "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa",
+        "La Rioja", "Mendoza", "Misiones", "Neuquén", "Río Negro",
+        "Salta", "San Juan", "San Luis", "Santa Cruz", "Santa Fe",
+        "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+    };
+}
+
+<h2 class="text-center">Lista de Contactos</h2>
+
+@if (User.IsInRole("ADMIN"))
+{
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Agregar Contacto
+    </button>
+
+    <form asp-controller="Home" asp-action="Buscar" method="get" class="d-flex">
+        <input type="text" name="buscar" class="form-control me-2" placeholder="Buscar..." />
+        <select name="tipo" class="form-select me-2">
+            <option value="ciudad">Ciudad</option>
+            <option value="id">ID</option>
+            <option value="emailTelefono">Email o Telefono</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Contacto</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-controller="Home" asp-action="CreateContact" method="post" enctype="multipart/form-data" id="createContactForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="Nombre" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa" class="form-label">Empresa</label>
+                            <input type="text" class="form-control" id="empresa" name="Empresa" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" name="Email" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="telefono" name="Telefono" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="dateOfBirth" name="DateOfBirth" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <h5>Dirección</h5>
+                        <div class="mb-3">
+                            <label for="calle" class="form-label">Calle</label>
+                            <input type="text" class="form-control" id="calle" name="Direccion.Calle" required />
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="localidad" class="form-label">Provincia</label>
+                            <select id="localidad" name="Direccion.Localidad" class="form-select" required>
+                                @foreach (var provincia in provincias)
+                                {
+                                    <option value="@provincia">@provincia</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewData["Error"] != null)
+    {
+        <section class="alert alert-danger mt-3" role="alert">
+            @ViewData["Error"]
+        </section>
+    }
+
+}
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Nombre</th>
+            <th>Empresa</th>
+            <th>Correo</th>
+            <th>Telefono</th>
+            <th>Fecha de Nacimiento</th>
+            <th>Dirección</th>
+            @if (User.IsInRole("ADMIN"))
+            {
+                <th>Acciones</th>
+            }
+        </tr>
+        @if (ViewData["ErrorSearch"] != null)
+        {
+            <section class="alert alert-danger mt-3" role="alert">
+                @ViewData["ErrorSearch"]
+            </section>
+        }
+    </thead>
+    <tbody id="contactList">
+        @foreach (var contact in Model.Contactos)
+        {
+            <tr>
+                <td>@contact.Nombre</td>
+                <td>@contact.Empresa</td>
+                <td>@contact.Email</td>
+                <td>@contact.Telefono</td>
+                <td>@contact.DateOfBirth?.ToString("dd/MM/yyyy")</td>
+                <td>
+                    @if (contact.Direccion != null)
+                    {
+                        <span>@contact.Direccion.Calle, @contact.Direccion.Localidad</span>
+                    }
+                    else
+                    {
+                        <span>No disponible</span>
+                    }
+                </td>
+                @if (User.IsInRole("ADMIN"))
+                {
+                    <td>
+                        <a asp-controller="Home" asp-action="EditContact" asp-route-id="@contact.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <a asp-controller="Home"
+                          asp-action="DeleteContact"
+                          asp-route-id="@contact.Id"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirmar()">
+                          Eliminar
+                        </a>
+                    </td>
+                }
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@section Scripts{
+    <script>
+        function confirmar() {
+            return confirm("esta seguro que desea eliminar al contacto?")
+        }
+    </script>
+}

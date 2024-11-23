@@ -1,0 +1,67 @@
+﻿@model IEnumerable<NetCoreBackend.Models.User>
+
+@{
+    ViewData["Title"] = "Lista de Usuarios";
+}
+
+<div class="container mt-5">
+    <a asp-controller="AuthView" asp-action="Register" class="btn btn-success btn-sm">Agregar nuevo</a>
+    <a asp-controller="AuthView" asp-action="OrderEmail" class="btn btn-success btn-sm">
+        Ordernar por Correo
+    </a>
+    <h1 class="text-center mb-4">Lista de Usuarios</h1>
+
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Avatar</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Nombre</td>
+                        <td>@user.Correo</td>
+                        <td>@user.Rol.ToString()</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(user.Avatar))
+                            {
+                                <img src="@user.Avatar" alt="Avatar" class="img-thumbnail" style="max-width: 50px; max-height: 50px;">
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sin Avatar</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Edit", "User", new { id = user.Id })" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="@Url.Action("Delete", "User", new { id = user.Id })" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este usuario?');">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay usuarios registrados.</td>
+                </tr>
+            }
+
+            @if (ViewData["Error"] != null)
+            {
+                <section class="alert alert-danger mt-3" role="alert">
+                    @ViewData["Error"]
+                </section>
+            }
+        </tbody>
+    </table>
+</div>

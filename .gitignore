@@ -1,0 +1,35 @@
+# Archivos de Visual Studio
+.vs/
+.vs2019/
+.vs2017/
+.vsconfig
+.idea/
+
+# Archivos generados por el compilador
+bin/
+obj/
+
+# Archivos de configuración de NuGet
+packages/
+
+# Archivos específicos de la solución de Visual Studio
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Archivos temporales y de caché
+*.log
+*.bak
+*.dbmdl
+*.tmp
+*.temp
+Thumbs.db
+
+# Archivos del sistema operativo
+.DS_Store
+Desktop.ini
+
+# Archivos de dependencias de NuGet (para proyectos .NET Core o superiores)
+project.lock.json
+project.fragment.lock.json
