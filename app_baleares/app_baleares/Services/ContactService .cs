@@ -2,21 +2,27 @@
 using NetCoreBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using app_baleares.Data;
+using app_baleares.Models;
+using app_baleares.Services.Interfaces;
 
 namespace NetCoreBackend.Services
 {
     public class ContactService: IContactService
     {
         private readonly AppDbContext _context;
+        private readonly ITransportService transportService;
 
-        public ContactService(AppDbContext context)
+        public ContactService(AppDbContext context, ITransportService transportServiceD)
         {
             _context = context;
+            transportService = transportServiceD;
         }
 
         public async Task<IEnumerable<Contacts>> GetAllContactsAsync()
         {
-            return await _context.Contacts.ToListAsync();
+            return await _context.Contacts
+                 .Include(c => c.TransporteContacto)
+                 .ToListAsync();
         }
 
         public async Task<Contacts> GetContactByIdAsync(int id)
@@ -26,7 +32,35 @@ namespace NetCoreBackend.Services
 
         public async Task<Contacts> SaveContactAsync(Contacts contact)
         {
-            await _context.Contacts.AddAsync(contact); 
+            try
+            {
+                
+                if (contact.TransporteContacto != null)
+                {
+                    Transporte transporte = await transportService.GetTransportByIdAsync(contact.TransporteContacto.Id);
+
+                    if (transporte != null)
+                    {
+                        contact.TransporteContacto = transporte;
+                    }
+                    else
+                    {
+                        contact.TransporteContacto = null;
+                        Console.WriteLine("El transporte no se encontró.");
+                    }
+                }
+                else
+                {
+                    contact.TransporteContacto = null;
+                    Console.WriteLine("El transporte del contacto es null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al buscar el transporte: {ex.Message}");
+            }
+
+            await _context.Contacts.AddAsync(contact);
             await _context.SaveChangesAsync();
             return contact;
         }
@@ -66,6 +100,35 @@ namespace NetCoreBackend.Services
             var existingContact = await _context.Contacts.FindAsync(contact.Id);
             if (existingContact == null) return null;
 
+            try
+            {
+
+                if (contact.TransporteContacto != null)
+                {
+                    Console.WriteLine($"id de contacto: {contact.TransporteContacto.Id}");
+                    Transporte transportUpdate = await transportService.GetTransportByIdAsync(contact.TransporteContacto.Id);
+
+                    if (transportUpdate != null)
+                    {
+                        contact.TransporteId = transportUpdate.Id;
+                    }
+                    else
+                    {
+                        contact.TransporteId = (await transportService.SaveTransportAsync(existingContact.TransporteContacto)).Id;
+                    }
+                }
+                else
+                {
+                    contact.TransporteContacto = null;
+                    Console.WriteLine("El transporte del contacto es null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al buscar el transporte: {ex.Message}");
+            }
+   
+              
             _context.Entry(existingContact).CurrentValues.SetValues(contact);
 
             await _context.SaveChangesAsync();

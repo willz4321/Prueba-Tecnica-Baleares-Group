@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using app_baleares.Data;
 
@@ -11,9 +12,11 @@ using app_baleares.Data;
 namespace app_baleares.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241202204028_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,12 +57,7 @@ namespace app_baleares.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<int?>("TransporteId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TransporteId");
 
                     b.ToTable("Contacts");
                 });
@@ -118,20 +116,22 @@ namespace app_baleares.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int>("contactId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("status")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("contactId")
+                        .IsUnique();
 
                     b.ToTable("Transport");
                 });
 
             modelBuilder.Entity("NetCoreBackend.Models.Contacts", b =>
                 {
-                    b.HasOne("app_baleares.Models.Transporte", "TransporteContacto")
-                        .WithMany("Contacts")
-                        .HasForeignKey("TransporteId");
-
                     b.OwnsOne("NetCoreBackend.Models.Address", "Direccion", b1 =>
                         {
                             b1.Property<int>("ContactsId")
@@ -160,13 +160,21 @@ namespace app_baleares.Migrations
 
                     b.Navigation("Direccion")
                         .IsRequired();
-
-                    b.Navigation("TransporteContacto");
                 });
 
             modelBuilder.Entity("app_baleares.Models.Transporte", b =>
                 {
-                    b.Navigation("Contacts");
+                    b.HasOne("NetCoreBackend.Models.Contacts", "contacto")
+                        .WithOne("Transporte")
+                        .HasForeignKey("app_baleares.Models.Transporte", "contactId");
+
+                    b.Navigation("contacto");
+                });
+
+            modelBuilder.Entity("NetCoreBackend.Models.Contacts", b =>
+                {
+                    b.Navigation("Transporte")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

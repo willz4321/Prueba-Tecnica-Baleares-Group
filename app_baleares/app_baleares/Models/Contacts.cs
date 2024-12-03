@@ -1,4 +1,5 @@
-﻿using NetCoreBackend.Models.Enum;
+﻿using app_baleares.Models;
+using NetCoreBackend.Models.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreBackend.Models
@@ -22,5 +23,9 @@ namespace NetCoreBackend.Models
 
         [Required]
         public Address Direccion { get; set; }
+
+        public int? TransporteId { get; set; }
+        public Transporte? TransporteContacto { get; set; }
+
     }
 }

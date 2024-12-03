@@ -9,6 +9,8 @@ using NetCoreBackend.Services;
 using Microsoft.OpenApi.Models;
 using NetCoreBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using app_baleares.Services.Interfaces;
+using app_baleares.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(buil
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<ITransportService, TransportService>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddEndpointsApiExplorer();

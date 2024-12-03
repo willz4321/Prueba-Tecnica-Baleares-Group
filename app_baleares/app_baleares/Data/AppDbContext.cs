@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using app_baleares.Models;
 
 namespace app_baleares.Data
 {
@@ -12,6 +13,8 @@ namespace app_baleares.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Contacts> Contacts { get; set; }
+
+        public DbSet<Transporte> Transport { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +59,21 @@ namespace app_baleares.Data
                     address.Property(a => a.Localidad)
                            .HasMaxLength(100);
                 });
+
+                entity.HasOne(c => c.TransporteContacto)
+                  .WithMany(t => t.Contacts) 
+                  .HasForeignKey(c => c.TransporteId) 
+                  .IsRequired(false);
+            });
+
+            modelBuilder.Entity<Transporte>(entity =>
+            {
+
+                entity.Property(t => t.Nombre)
+                      .HasMaxLength(150);
+
+                entity.Property(t => t.Tipo)
+                      .HasMaxLength(150);
             });
         }
     }

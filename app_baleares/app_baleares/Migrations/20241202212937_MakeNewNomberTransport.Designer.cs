@@ -12,8 +12,8 @@ using app_baleares.Data;
 namespace app_baleares.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241122192613_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241202212937_MakeNewNomberTransport")]
+    partial class MakeNewNomberTransport
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,11 @@ namespace app_baleares.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
@@ -93,6 +98,39 @@ namespace app_baleares.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("app_baleares.Models.Transporte", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("contactId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("contactId")
+                        .IsUnique()
+                        .HasFilter("[contactId] IS NOT NULL");
+
+                    b.ToTable("Transport");
+                });
+
             modelBuilder.Entity("NetCoreBackend.Models.Contacts", b =>
                 {
                     b.OwnsOne("NetCoreBackend.Models.Address", "Direccion", b1 =>
@@ -123,6 +161,20 @@ namespace app_baleares.Migrations
 
                     b.Navigation("Direccion")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("app_baleares.Models.Transporte", b =>
+                {
+                    b.HasOne("NetCoreBackend.Models.Contacts", "contacto")
+                        .WithOne("TransporteContacto")
+                        .HasForeignKey("app_baleares.Models.Transporte", "contactId");
+
+                    b.Navigation("contacto");
+                });
+
+            modelBuilder.Entity("NetCoreBackend.Models.Contacts", b =>
+                {
+                    b.Navigation("TransporteContacto");
                 });
 #pragma warning restore 612, 618
         }
